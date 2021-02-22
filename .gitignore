@@ -1,6 +1,7 @@
 # My Random stuff
 config.py
 *.db
+*.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
