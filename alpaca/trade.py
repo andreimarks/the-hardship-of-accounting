@@ -1,4 +1,4 @@
-import random
+import math, random
 import alpaca_trade_api as tradeapi
 
 from pprint import pprint
@@ -30,6 +30,17 @@ def buy(symbol, qty):
     
     return order
 
+def sell(symbol, qty):
+    order = api.submit_order(
+                symbol=symbol,
+                qty=qty,
+                side="sell",
+                type="market",
+                time_in_force="day"
+            )
+    
+    return order
+
 def run_daily_random_buy(source_list, purchase_stop_threshold):
     orders = []
 
@@ -49,7 +60,7 @@ def run_daily_random_buy(source_list, purchase_stop_threshold):
 
 api = tradeapi.REST()
 
-sentimental_holds = ["U"]
+sentimental_holds = ["ATVI", "U"]
 watchlist = ["TAN",
              "QCLN",
              "PBW",
@@ -72,6 +83,39 @@ watchlist = ["TAN",
              "GRID",
              "YOLO",
              "CNBS",
-             "THCX"]
+             "THCX",
+             #"DIET",
+             #"QTUM",
+             #"ORG",
+             "NTDOY"]
 
 orders = run_daily_random_buy(watchlist, 500)
+
+"""
+# Get current shares of SPY
+positions = api.list_positions()
+spy_count = 0
+for position in positions:
+    if position.symbol == "SPY":
+        spy_count = int(position.qty)
+
+print(f"{spy_count} shares of SPY")
+
+# Get quotes
+spy_price = api.get_last_quote("SPY").bidprice
+spyx_price = api.get_last_quote("SPYX").bidprice
+print(f"SPY: {spy_price}")
+print(f"SPYX: {spyx_price}")
+print("----")
+
+# Plan orders
+spyx_count = math.ceil(spy_price/spyx_price) * spy_count
+print(f"Sell {spy_count} shares of SPYX")
+print(f"Buy {spyx_count} shares of SPYX")
+
+sell_order = sell("SPY", spy_count)
+pprint(sell_order)
+
+buy_order = buy("SPYX", spyx_count)
+pprint(buy_order)
+"""
