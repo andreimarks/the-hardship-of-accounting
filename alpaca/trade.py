@@ -1,70 +1,77 @@
-import requests, json
 import random
-#import alpaca_trade_api as tradeapi
+import alpaca_trade_api as tradeapi
 
-from config import *
 from pprint import pprint
 
-#BASE_URL = "https://paper-api.alpaca.markets"
-BASE_URL = "https://api.alpaca.markets"
+def get_account_info():
+    # Get our account information
+    account = api.get_account()
+    print(account)
 
-ACCOUNT_URL = "{}/v2/account".format(BASE_URL)
-ORDERS_URL = "{}/v2/orders".format(BASE_URL)
+    # Check if our account is restricted from trading.
+    if account.trading_blocked:
+        print("Account is currently restricted from trading.")
 
-#HEADERS = {"APCA-API-KEY-ID": API_KEY, "APCA-API-SECRET-Key": SECRET_KEY}
-HEADERS = {"APCA-API-KEY-ID": LIVE_API_KEY, "APCA-API-SECRET-Key": LIVE_SECRET_KEY}
+    # Check how much cash is in the account.
+    print("${} is available as cash.".format(account.cash))
 
-def get_account():
-    r = requests.get(ACCOUNT_URL, headers=HEADERS)
+    # Check how much money we can use to open new positions.
+    print("${} is available as buying power.".format(account.buying_power))
 
-    return json.loads(r.content)
 
-def create_order(symbol, qty, side, type, time_in_force):
-    data = {
-        "symbol": symbol,
-        "qty": qty,
-        "side": side,
-        "type": type,
-        "time_in_force": time_in_force
-    }
+def buy(symbol, qty):
+    order = api.submit_order(
+                symbol=symbol,
+                qty=qty,
+                side="buy",
+                type="market",
+                time_in_force="day"
+            )
+    
+    return order
 
-    r = requests.post(ORDERS_URL, json=data, headers=HEADERS)
+def run_daily_random_buy(source_list, purchase_stop_threshold):
+    orders = []
 
-    return json.loads(r.content)
+    while purchase_stop_threshold > 0:
+        print(f"Current purchase limit: {purchase_stop_threshold}")
+        ticker = random.choice(source_list)
+        pprint(ticker)
+        quote = api.get_last_quote(ticker)
+        pprint(quote.bidprice)
+        purchase_stop_threshold -= quote.bidprice
+        order = buy(ticker, 1)
+        orders.append(order)
+        print("----")
+    
+    return orders
 
-def get_orders():
-    r = requests.get(ORDERS_URL, headers=HEADERS)
 
-    return json.loads(r.content)
+api = tradeapi.REST()
 
-def getting_started_tutorial():
-    response = create_order("ICLN", 1, "buy", "market", "gtc")
-    #response = create_order("MSFT", 100, "buy", "market", "gtc")
-    #orders = get_orders()
-    #pprint(orders)
-    pass
+sentimental_holds = ["U"]
+watchlist = ["TAN",
+             "QCLN",
+             "PBW",
+             "ICLN",
+             "FAN",
+             "BOTZ",
+             "ARKG",
+             "ACES",
+             "ARKK",
+             "ARKQ",
+             "ROBO",
+             "PHO",
+             "UFO",
+             "PZD",
+             "LOWC",
+             "SPCE",
+             "AAPL",
+             "MSFT",
+             "SPYX",
+             "GRID",
+             "YOLO",
+             "CNBS",
+             "THCX"]
 
-"""
-api = tradeapi.REST(
-    base_url=BASE_URL,
-    key_id=API_KEY,
-    secret_key=SECRET_KEY
-)
-"""
-
-# Get our account information
-#account = api.get_account()
-
-# Check if our account is restricted from trading.
-#if account.trading_blocked:
-#    print("Account is currently restricted from trading.")
-
-# Check how much money we can use to open new positions.
-#print("${} is available as buying power.".format(account.buying_power))
-
-positions = ["PBW"]
-ticker = random.choice(positions)
-response = create_order(ticker, 2, "buy", "market", "gtc")
-pprint(response)
-#response = create_order("PBW", 1, "buy", "market", "gtc")
-#pprint(response)
+orders = run_daily_random_buy(watchlist, 500)
