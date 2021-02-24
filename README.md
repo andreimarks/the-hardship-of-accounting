@@ -9,3 +9,5 @@ What he did with every cent.
 -- Robert Frost
 
 I'm interested in learning a little bit about algotrading and experimenting with it. Just going to organize everything in github.
+
+Latest happenings in my [journal](journal/journal.md).
