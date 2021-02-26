@@ -1,4 +1,4 @@
-import math, random
+import random
 import alpaca_trade_api as tradeapi
 
 from pprint import pprint
@@ -18,6 +18,13 @@ def get_account_info():
     # Check how much money we can use to open new positions.
     print("${} is available as buying power.".format(account.buying_power))
 
+def get_unrealized_profit_loss():
+    positions = api.list_positions()
+    pl = 0
+    for position in positions:
+        pl += float(position.unrealized_pl)
+
+    return pl
 
 def buy(symbol, qty):
     order = api.submit_order(
@@ -41,6 +48,11 @@ def sell(symbol, qty):
     
     return order
 
+def sell_all_positions():
+    positions = api.list_positions()
+    for position in positions:
+        sell(position.symbol, position.qty)
+
 def run_daily_random_buy(source_list, purchase_stop_threshold):
     orders = []
 
@@ -57,10 +69,9 @@ def run_daily_random_buy(source_list, purchase_stop_threshold):
     
     return orders
 
-
 api = tradeapi.REST()
 
-sentimental_holds = ["ATVI", "U"]
+sentimental_holds = ["ATVI", "SPCE", "U"]
 watchlist = ["TAN",
              "QCLN",
              "PBW",
@@ -76,7 +87,6 @@ watchlist = ["TAN",
              "UFO",
              "PZD",
              "LOWC",
-             "SPCE",
              "AAPL",
              "MSFT",
              "SPYX",
@@ -90,32 +100,3 @@ watchlist = ["TAN",
              "NTDOY"]
 
 orders = run_daily_random_buy(watchlist, 500)
-
-"""
-# Get current shares of SPY
-positions = api.list_positions()
-spy_count = 0
-for position in positions:
-    if position.symbol == "SPY":
-        spy_count = int(position.qty)
-
-print(f"{spy_count} shares of SPY")
-
-# Get quotes
-spy_price = api.get_last_quote("SPY").bidprice
-spyx_price = api.get_last_quote("SPYX").bidprice
-print(f"SPY: {spy_price}")
-print(f"SPYX: {spyx_price}")
-print("----")
-
-# Plan orders
-spyx_count = math.ceil(spy_price/spyx_price) * spy_count
-print(f"Sell {spy_count} shares of SPYX")
-print(f"Buy {spyx_count} shares of SPYX")
-
-sell_order = sell("SPY", spy_count)
-pprint(sell_order)
-
-buy_order = buy("SPYX", spyx_count)
-pprint(buy_order)
-"""
