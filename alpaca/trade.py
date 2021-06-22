@@ -124,7 +124,7 @@ def run_daily_random_buy(source_list, purchase_stop_threshold):
 
 api = tradeapi.REST()
 
-sentimental_holds = ["ATVI", "NFLX", "SPCE", "U"]
+sentimental_holds = ["ATVI", "NFLX", "SPCE", "TTWO", "U"]
 sentimental_holds_unavailable = ["NTDOY"]
 company_holds = ["CRSP", "NTLA", "BEAM", "FATE"]
 watchlist = ["TAN",
@@ -140,7 +140,7 @@ watchlist = ["TAN",
              "ROBO",
              "PHO",
              "UFO",
-             "PZD",
+             "ERTH",
              "LOWC",
              "AAPL",
              "MSFT",
@@ -200,9 +200,13 @@ print(failed_trades)
 """
 
 #limit = 500 #* 1.1 * 1.1 * 1.1 * 1.1 * 1.1 * 1.1
-limit = 42.599999999999994
-orders = run_daily_random_buy(watchlist, limit)
+#limit = 500
+#orders = run_daily_random_buy(watchlist, limit)
 #print(api.get_last_trade("SPYX"))
+
+order = buy("SPYX", 1)
+ticker = random.choice(watchlist)
+order = buy(ticker, 1)
 
 """
 failed = []
