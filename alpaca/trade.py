@@ -205,8 +205,9 @@ print(failed_trades)
 #print(api.get_last_trade("SPYX"))
 
 order = buy("SPYX", 1)
-ticker = random.choice(watchlist)
-order = buy(ticker, 1)
+order = buy("VOTE", 2)
+#ticker = random.choice(watchlist)
+#order = buy(ticker, 1)
 
 """
 failed = []
